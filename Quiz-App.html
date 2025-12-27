@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizMaster Pro - Test Your Knowledge</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #2d3748;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            max-width: 100vw;
+        }
+
+        /* Header */
+        .app-header {
+            background: #ffffff;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e2e8f0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: #4a5568;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            color: #2d3748;
+            font-weight: 700;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .level-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            padding-bottom: 100px;
+        }
+
+        .screen {
+            max-width: 1400px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Category Screen */
+        .screen-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .screen-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+            font-weight: 700;
+        }
+
+        .screen-header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .category-card {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .category-card:hover {
+            transform: translateY(-8px);
+            border-color: #667eea;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .category-card i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .category-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+        }
+
+        .category-card p {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        /* Quiz Settings */
+        .quiz-settings {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .setting-item label {
+            font-size: 1rem;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .setting-item select {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            color: #2d3748;
+            padding: 0.8rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .setting-item select:hover,
+        .setting-item select:focus {
+            border-color: #667eea;
+            outline: none;
+            background: #ffffff;
+        }
+
+        .setting-item select option {
+            background: #ffffff;
+            color: #2d3748;
+        }
+
+        /* Quiz Screen */
+        .quiz-header {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .quiz-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .difficulty-tag {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .difficulty-tag.easy { 
+            background: #c6f6d5; 
+            color: #22543d; 
+        }
+        .difficulty-tag.medium { 
+            background: #feebc8; 
+            color: #7c2d12; 
+        }
+        .difficulty-tag.hard { 
+            background: #fed7d7; 
+            color: #742a2a; 
+        }
+        .difficulty-tag.expert {
+            background: #e9d8fd;
+            color: #44337a;
+        }
+
+        .quiz-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .stat i {
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+
+        .progress-container {
+            background: #e2e8f0;
+            border-radius: 10px;
+            height: 10px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+        }
+
+        .question-container {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .question-card {
+            margin-bottom: 2rem;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        #questionText {
+            font-size: 1.6rem;
+            line-height: 1.6;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .options-container {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .option-btn {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            color: #2d3748;
+            font-size: 1.1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .option-btn:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+            transform: translateX(5px);
+        }
+
+        .option-btn.selected {
+            background: #2d3748;
+            border-color: #2d3748;
+            color: #ffffff;
+        }
+
+        .option-btn.selected .option-letter {
+            background: #4a5568;
+            color: #ffffff;
+        }
+
+        .option-letter {
+            background: #e2e8f0;
+            color: #4a5568;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        /* Quiz Controls */
+        .quiz-controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #f7fafc;
+            border-color: #cbd5e0;
+        }
+
+        .btn-danger {
+            background: #fc8181;
+            color: white;
+            border: 2px solid #fc8181;
+        }
+
+        .btn-danger:hover {
+            background: #f56565;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Results Screen */
+        .results-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .results-message {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .results-message h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #2d3748;
+        }
+
+        .results-message .emoji {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .results-message .message {
+            font-size: 1.3rem;
+            color: #4a5568;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .improvement-tips {
+            background: #fffaf0;
+            border: 2px solid #fbd38d;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            text-align: left;
+        }
+
+        .improvement-tips h4 {
+            color: #744210;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .improvement-tips ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .improvement-tips li {
+            color: #744210;
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .improvement-tips li:before {
+            content: "💡";
+            position: absolute;
+            left: 0;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            margin: 2rem auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+
+        .circle-content {
+            text-align: center;
+            color: white;
+        }
+
+        .circle-content span {
+            display: block;
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .results-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .result-card {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .result-card i {
+            font-size: 2.5rem;
+        }
+
+        .result-card.correct i { color: #48bb78; }
+        .result-card.incorrect i { color: #f56565; }
+        .result-card.time i { color: #ed8936; }
+        .result-card.rank i { color: #667eea; }
+
+        .result-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .result-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .results-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        /* Profile Screen */
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .profile-card {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-item {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .stat-item .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border-top: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-around;
+            padding: 1rem;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .nav-item {
+            background: none;
+            border: none;
+            color: #718096;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .nav-item i {
+            font-size: 1.5rem;
+        }
+
+        .nav-item span {
+            font-size: 0.85rem;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: #667eea;
+            background: #edf2f7;
+        }
+
+        /* Timer Alert */
+        .timer-alert {
+            color: #f56565 !important;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.5; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 1rem;
+            }
+
+            .logo h1 {
+                font-size: 1.3rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .screen-header h2 {
+                font-size: 1.8rem;
+            }
+
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quiz-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .quiz-stats {
+                justify-content: center;
+            }
+
+            .question-container {
+                padding: 1.5rem;
+            }
+
+            #questionText {
+                font-size: 1.2rem;
+            }
+
+            .quiz-controls {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <h1>QuizMaster Pro</h1>
+            </div>
+            <div class="user-info">
+                <span id="userName">Keerthana Vutukuri</span>
+                <div class="level-badge" id="levelBadge">Level 5</div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Screen 1: Category Selection -->
+            <section class="screen" id="categoryScreen">
+                <div class="screen-header">
+                    <h2>Choose Your Challenge</h2>
+                    <p>Select a category and start testing your knowledge</p>
+                </div>
+                
+                <div class="categories-grid">
+                    <div class="category-card" data-category="science">
+                        <i class="fas fa-flask"></i>
+                        <h3>Science</h3>
+                        <p>Physics, Chemistry, Biology</p>
+                    </div>
+                    <div class="category-card" data-category="history">
+                        <i class="fas fa-landmark"></i>
+                        <h3>History</h3>
+                        <p>World History & Events</p>
+                    </div>
+                    <div class="category-card" data-category="geography">
+                        <i class="fas fa-globe"></i>
+                        <h3>Geography</h3>
+                        <p>Countries, Capitals & Maps</p>
+                    </div>
+                    <div class="category-card" data-category="sports">
+                        <i class="fas fa-football"></i>
+                        <h3>Sports</h3>
+                        <p>Athletes, Teams & Records</p>
+                    </div>
+                    <div class="category-card" data-category="entertainment">
+                        <i class="fas fa-film"></i>
+                        <h3>Entertainment</h3>
+                        <p>Movies, Music & TV Shows</p>
+                    </div>
+                    <div class="category-card" data-category="technology">
+                        <i class="fas fa-microchip"></i>
+                        <h3>Technology</h3>
+                        <p>Computers, Internet & Gadgets</p>
+                    </div>
+                    <div class="category-card" data-category="literature">
+                        <i class="fas fa-book"></i>
+                        <h3>Literature</h3>
+                        <p>Books, Authors & Poetry</p>
+                    </div>
+                    <div class="category-card" data-category="general">
+                        <i class="fas fa-lightbulb"></i>
+                        <h3>General Knowledge</h3>
+                        <p>Mixed Topics</p>
+                    </div>
+                </div>
+
+                <div class="quiz-settings">
+                    <div class="setting-item">
+                        <label for="questionCount">Number of Questions:</label>
+                        <select id="questionCount">
+                            <option value="5">5 Questions</option>
+                            <option value="10" selected>10 Questions</option>
+                            <option value="15">15 Questions</option>
+                            <option value="20">20 Questions</option>
+                            <option value="25">25 Questions</option>
+                            <option value="30">30 Questions</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="difficulty">Difficulty Level:</label>
+                        <select id="difficulty">
+                            <option value="easy">Easy - Beginner Friendly</option>
+                            <option value="medium" selected>Medium - Moderate Challenge</option>
+                            <option value="hard">Hard - Expert Level</option>
+                            <option value="expert">Expert - Master Quiz</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="timer">Timer per Question:</label>
+                        <select id="timer">
+                            <option value="0">No Timer - Relaxed Mode</option>
+                            <option value="15">15 seconds - Speed Round</option>
+                            <option value="30">30 seconds - Quick Think</option>
+                            <option value="60" selected>60 seconds - Normal</option>
+                            <option value="90">90 seconds - Extended</option>
+                            <option value="120">120 seconds - Research Mode</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="quizMode">Quiz Mode:</label>
+                        <select id="quizMode">
+                            <option value="standard" selected>Standard - One Chance</option>
+                            <option value="practice">Practice - Multiple Attempts</option>
+                            <option value="timed">Timed Challenge - Race Clock</option>
+                            <option value="survival">Survival - One Mistake Out</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="showAnswers">Show Answers:</label>
+                        <select id="showAnswers">
+                            <option value="immediate">Immediately After Answer</option>
+                            <option value="end" selected>At End of Quiz</option>
+                            <option value="never">Never Show</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="soundEffects">Sound Effects:</label>
+                        <select id="soundEffects">
+                            <option value="on" selected>On - With Sounds</option>
+                            <option value="off">Off - Silent Mode</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 2: Active Quiz -->
+            <section class="screen hidden" id="quizScreen">
+                <div class="quiz-header">
+                    <div class="quiz-info">
+                        <span id="currentCategory">General Knowledge</span>
+                        <div class="difficulty-tag medium" id="difficultyTag">Medium</div>
+                    </div>
+                    <div class="quiz-stats">
+                        <div class="stat">
+                            <i class="fas fa-clock"></i>
+                            <span id="timerDisplay">60s</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-star"></i>
+                            <span id="scoreDisplay">0</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-question-circle"></i>
+                            <span id="progressDisplay">1/10</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+
+                <div class="question-container">
+                    <div class="question-card">
+                        <div class="question-number">Question <span id="questionNumber">1</span></div>
+                        <h3 id="questionText">Loading question...</h3>
+                    </div>
+
+                    <div class="options-container" id="optionsContainer">
+                        <!-- Options will be loaded here -->
+                    </div>
+                </div>
+
+                <div class="quiz-controls">
+                    <button class="btn btn-secondary" id="prevBtn" disabled>
+                        <i class="fas fa-arrow-left"></i> Previous
+                    </button>
+                    <button class="btn btn-primary" id="nextBtn">
+                        Next <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button class="btn btn-danger" id="quitBtn">
+                        <i class="fas fa-sign-out-alt"></i> Quit Quiz
+                    </button>
+                </div>
+            </section>
+
+            <!-- Screen 3: Results -->
+            <section class="screen hidden" id="resultsScreen">
+                <div class="results-header">
+                    <div class="results-message" id="resultsMessage">
+                        <!-- Will be dynamically populated -->
+                    </div>
+
+                    <div class="score-circle">
+                        <div class="circle-content">
+                            <span id="finalScore">0%</span>
+                            <small>Score</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="results-details">
+                    <div class="result-card correct">
+                        <i class="fas fa-check-circle"></i>
+                        <div class="result-info">
+                            <span class="result-label">Correct Answers</span>
+                            <span class="result-value" id="correctCount">0</span>
+                        </div>
+                    </div>
+                    <div class="result-card incorrect">
+                        <i class="fas fa-times-circle"></i>
+                        <div class="result-info">
+                            <span class="result-label">Incorrect Answers</span>
+                            <span class="result-value" id="incorrectCount">0</span>
+                        </div>
+                    </div>
+                    <div class="result-card time">
+                        <i class="fas fa-clock"></i>
+                        <div class="result-info">
+                            <span class="result-label">Time Taken</span>
+                            <span class="result-value" id="timeTaken">0:00</span>
+                        </div>
+                    </div>
+                    <div class="result-card rank">
+                        <i class="fas fa-trophy"></i>
+                        <div class="result-info">
+                            <span class="result-label">Performance</span>
+                            <span class="result-value" id="rankPosition">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="results-actions">
+                    <button class="btn btn-secondary" id="retryBtn">
+                        <i class="fas fa-redo"></i> Try Same Quiz
+                    </button>
+                    <button class="btn btn-primary" id="newQuizBtn">
+                        <i class="fas fa-plus"></i> New Quiz
+                    </button>
+                </div>
+            </section>
+
+            <!-- Screen 4: Profile -->
+            <section class="screen hidden" id="profileScreen">
+                <div class="screen-header">
+                    <h2>Your Profile</h2>
+                    <p>Track your progress and achievements</p>
+                </div>
+
+                <div class="profile-container">
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="profile-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h3 id="profileName">Keerthana Vutukuri</h3>
+                                <p style="color: #718096;">Quiz Master</p>
+                                <div class="level-badge" style="display: inline-block; margin-top: 0.5rem;">Level 5</div>
+                            </div>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="value" id="totalQuizzes">127</div>
+                                <div class="result-label">Total Quizzes</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="value" id="avgScore">78%</div>
+                                <div class="result-label">Average Score</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="value" id="totalPoints">15,420</div>
+                                <div class="result-label">Total Points</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="value" id="streak">12</div>
+                                <div class="result-label">Day Streak</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-card">
+                        <h3 style="margin-bottom: 1rem; color: #2d3748;">Recent Activity</h3>
+                        <div style="color: #718096;">
+                            <p style="padding: 1rem; background: #f7fafc; border-radius: 8px; margin-bottom: 0.5rem; border: 2px solid #e2e8f0;">
+                                <i class="fas fa-check-circle" style="color: #48bb78;"></i> 
+                                Completed Science Quiz - Score: 85%
+                            </p>
+                            <p style="padding: 1rem; background: #f7fafc; border-radius: 8px; margin-bottom: 0.5rem; border: 2px solid #e2e8f0;">
+                                <i class="fas fa-trophy" style="color: #ed8936;"></i> 
+                                Achieved Level 5!
+                            </p>
+                            <p style="padding: 1rem; background: #f7fafc; border-radius: 8px; border: 2px solid #e2e8f0;">
+                                <i class="fas fa-fire" style="color: #f56565;"></i> 
+                                12 day streak maintained!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-screen="category">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" data-screen="quiz">
+                <i class="fas fa-gamepad"></i>
+                <span>Quiz</span>
+            </button>
+            <button class="nav-item" data-screen="results">
+                <i class="fas fa-chart-bar"></i>
+                <span>Results</span>
+            </button>
+            <button class="nav-item" data-screen="profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        // Quiz Data
+        const quizData = {
+            science: [
+                { q: "What is the chemical symbol for gold?", options: ["Go", "Au", "Gd", "Ag"], correct: 1 },
+                { q: "What planet is known as the Red Planet?", options: ["Venus", "Jupiter", "Mars", "Saturn"], correct: 2 },
+                { q: "How many bones are in the human body?", options: ["186", "206", "226", "246"], correct: 1 },
+                { q: "What is the speed of light?", options: ["300,000 km/s", "150,000 km/s", "450,000 km/s", "600,000 km/s"], correct: 0 },
+                { q: "What is H2O?", options: ["Hydrogen Peroxide", "Water", "Oxygen", "Carbon Dioxide"], correct: 1 },
+                { q: "What is the largest organ in human body?", options: ["Heart", "Brain", "Liver", "Skin"], correct: 3 },
+                { q: "What gas do plants absorb from the atmosphere?", options: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"], correct: 2 },
+                { q: "What is the center of an atom called?", options: ["Electron", "Neutron", "Proton", "Nucleus"], correct: 3 },
+                { q: "What is the hardest natural substance?", options: ["Gold", "Iron", "Diamond", "Platinum"], correct: 2 },
+                { q: "What force keeps us on the ground?", options: ["Magnetism", "Gravity", "Friction", "Inertia"], correct: 1 }
+            ],
+            history: [
+                { q: "Who was the first President of the USA?", options: ["Thomas Jefferson", "George Washington", "John Adams", "Benjamin Franklin"], correct: 1 },
+                { q: "In which year did World War II end?", options: ["1943", "1944", "1945", "1946"], correct: 2 },
+                { q: "Who built the pyramids?", options: ["Greeks", "Romans", "Egyptians", "Mayans"], correct: 2 },
+                { q: "What year did the Titanic sink?", options: ["1910", "1911", "1912", "1913"], correct: 2 },
+                { q: "Who painted the Mona Lisa?", options: ["Michelangelo", "Leonardo da Vinci", "Raphael", "Donatello"], correct: 1 },
+                { q: "Which empire built Machu Picchu?", options: ["Aztec", "Maya", "Inca", "Olmec"], correct: 2 },
+                { q: "What year did the Berlin Wall fall?", options: ["1987", "1988", "1989", "1990"], correct: 2 },
+                { q: "Who was the first man on the moon?", options: ["Buzz Aldrin", "Neil Armstrong", "Yuri Gagarin", "John Glenn"], correct: 1 },
+                { q: "In which year did India gain independence?", options: ["1945", "1946", "1947", "1948"], correct: 2 },
+                { q: "Who discovered America?", options: ["Amerigo Vespucci", "Christopher Columbus", "Leif Erikson", "Marco Polo"], correct: 1 }
+            ],
+            geography: [
+                { q: "What is the capital of France?", options: ["London", "Berlin", "Paris", "Madrid"], correct: 2 },
+                { q: "Which is the largest ocean?", options: ["Atlantic", "Indian", "Arctic", "Pacific"], correct: 3 },
+                { q: "What is the longest river in the world?", options: ["Amazon", "Nile", "Mississippi", "Yangtze"], correct: 1 },
+                { q: "Mount Everest is in which mountain range?", options: ["Alps", "Andes", "Himalayas", "Rockies"], correct: 2 },
+                { q: "Which country has the most population?", options: ["India", "USA", "China", "Indonesia"], correct: 2 },
+                { q: "What is the smallest country?", options: ["Monaco", "Vatican City", "San Marino", "Liechtenstein"], correct: 1 },
+                { q: "Which desert is the largest?", options: ["Gobi", "Sahara", "Arabian", "Kalahari"], correct: 1 },
+                { q: "What is the capital of Australia?", options: ["Sydney", "Melbourne", "Canberra", "Perth"], correct: 2 },
+                { q: "How many continents are there?", options: ["5", "6", "7", "8"], correct: 2 },
+                { q: "Which country is known as Land of Rising Sun?", options: ["China", "Korea", "Japan", "Thailand"], correct: 2 }
+            ],
+            sports: [
+                { q: "How many players in a soccer team?", options: ["9", "10", "11", "12"], correct: 2 },
+                { q: "What sport is played at Wimbledon?", options: ["Cricket", "Tennis", "Golf", "Badminton"], correct: 1 },
+                { q: "How many rings in Olympic logo?", options: ["4", "5", "6", "7"], correct: 1 },
+                { q: "What is a perfect score in bowling?", options: ["100", "200", "250", "300"], correct: 3 },
+                { q: "How long is a marathon?", options: ["26.2 miles", "30 miles", "20 miles", "25 miles"], correct: 0 },
+                { q: "What sport uses a puck?", options: ["Baseball", "Cricket", "Hockey", "Football"], correct: 2 },
+                { q: "How many players in basketball team?", options: ["4", "5", "6", "7"], correct: 1 },
+                { q: "What country invented cricket?", options: ["India", "Australia", "England", "South Africa"], correct: 2 },
+                { q: "How many Grand Slam tennis tournaments?", options: ["3", "4", "5", "6"], correct: 1 },
+                { q: "What is Tiger Woods known for?", options: ["Tennis", "Golf", "Baseball", "Basketball"], correct: 1 }
+            ],
+            entertainment: [
+                { q: "Who directed Titanic?", options: ["Steven Spielberg", "James Cameron", "Martin Scorsese", "Christopher Nolan"], correct: 1 },
+                { q: "Which band sang 'Bohemian Rhapsody'?", options: ["The Beatles", "Led Zeppelin", "Queen", "Pink Floyd"], correct: 2 },
+                { q: "What is the highest-grossing film?", options: ["Titanic", "Avatar", "Avengers", "Star Wars"], correct: 1 },
+                { q: "Who played Iron Man?", options: ["Chris Evans", "Robert Downey Jr", "Chris Hemsworth", "Mark Ruffalo"], correct: 1 },
+                { q: "What year was Netflix founded?", options: ["1995", "1997", "1999", "2001"], correct: 1 },
+                { q: "Who sang 'Thriller'?", options: ["Prince", "Michael Jackson", "Elvis Presley", "Madonna"], correct: 1 },
+                { q: "What is Batman's real name?", options: ["Bruce Wayne", "Clark Kent", "Peter Parker", "Tony Stark"], correct: 0 },
+                { q: "How many Harry Potter books?", options: ["5", "6", "7", "8"], correct: 2 },
+                { q: "Who painted Starry Night?", options: ["Pablo Picasso", "Vincent van Gogh", "Claude Monet", "Salvador Dali"], correct: 1 },
+                { q: "What streaming service has 'Stranger Things'?", options: ["Hulu", "Amazon Prime", "Netflix", "Disney+"], correct: 2 }
+            ],
+            technology: [
+                { q: "Who founded Apple?", options: ["Bill Gates", "Steve Jobs", "Mark Zuckerberg", "Elon Musk"], correct: 1 },
+                { q: "What does CPU stand for?", options: ["Central Process Unit", "Central Processing Unit", "Computer Personal Unit", "Central Processor Unit"], correct: 1 },
+                { q: "What year was Facebook founded?", options: ["2002", "2003", "2004", "2005"], correct: 2 },
+                { q: "What is AI short for?", options: ["Automated Intelligence", "Artificial Intelligence", "Advanced Intelligence", "Applied Intelligence"], correct: 1 },
+                { q: "Who created Tesla?", options: ["Elon Musk", "Jeff Bezos", "Bill Gates", "Steve Jobs"], correct: 0 },
+                { q: "What does HTTP stand for?", options: ["HyperText Transfer Protocol", "High Transfer Text Protocol", "HyperText Transmission Protocol", "High Text Transfer Protocol"], correct: 0 },
+                { q: "What is the most used search engine?", options: ["Bing", "Yahoo", "Google", "DuckDuckGo"], correct: 2 },
+                { q: "What language is Android developed in?", options: ["Python", "Java", "C++", "Swift"], correct: 1 },
+                { q: "What does RAM stand for?", options: ["Random Access Memory", "Read Access Memory", "Rapid Access Memory", "Run Access Memory"], correct: 0 },
+                { q: "Who owns WhatsApp?", options: ["Google", "Apple", "Meta", "Microsoft"], correct: 2 }
+            ],
+            literature: [
+                { q: "Who wrote Romeo and Juliet?", options: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"], correct: 1 },
+                { q: "Who wrote '1984'?", options: ["Aldous Huxley", "Ray Bradbury", "George Orwell", "H.G. Wells"], correct: 2 },
+                { q: "Who wrote Pride and Prejudice?", options: ["Emily Bronte", "Charlotte Bronte", "Jane Austen", "Mary Shelley"], correct: 2 },
+                { q: "What is the longest book ever written?", options: ["War and Peace", "In Search of Lost Time", "Les Misérables", "Atlas Shrugged"], correct: 1 },
+                { q: "Who wrote The Great Gatsby?", options: ["Ernest Hemingway", "F. Scott Fitzgerald", "John Steinbeck", "William Faulkner"], correct: 1 },
+                { q: "Who created Sherlock Holmes?", options: ["Agatha Christie", "Arthur Conan Doyle", "Edgar Allan Poe", "Dorothy Sayers"], correct: 1 },
+                { q: "What is the first book of the Bible?", options: ["Exodus", "Genesis", "Leviticus", "Numbers"], correct: 1 },
+                { q: "Who wrote The Odyssey?", options: ["Virgil", "Homer", "Sophocles", "Euripides"], correct: 1 },
+                { q: "Who wrote To Kill a Mockingbird?", options: ["Harper Lee", "Truman Capote", "John Steinbeck", "Tennessee Williams"], correct: 0 },
+                { q: "What language was the Quran originally written in?", options: ["Hebrew", "Aramaic", "Arabic", "Persian"], correct: 2 }
+            ],
+            general: [
+                { q: "How many days in a leap year?", options: ["364", "365", "366", "367"], correct: 2 },
+                { q: "What is the smallest prime number?", options: ["0", "1", "2", "3"], correct: 2 },
+                { q: "What color is a ruby?", options: ["Blue", "Green", "Red", "Yellow"], correct: 2 },
+                { q: "How many sides does a hexagon have?", options: ["5", "6", "7", "8"], correct: 1 },
+                { q: "What is the square root of 144?", options: ["10", "11", "12", "13"], correct: 2 },
+                { q: "What gas do humans breathe in?", options: ["Carbon Dioxide", "Nitrogen", "Oxygen", "Hydrogen"], correct: 2 },
+                { q: "How many hours in a day?", options: ["12", "24", "36", "48"], correct: 1 },
+                { q: "What animal is known as King of Jungle?", options: ["Tiger", "Lion", "Elephant", "Bear"], correct: 1 },
+                { q: "How many teeth does an adult human have?", options: ["28", "30", "32", "34"], correct: 2 },
+                { q: "What is frozen water called?", options: ["Snow", "Hail", "Ice", "Frost"], correct: 2 }
+            ]
+        };
+
+        // Performance messages based on score
+        const performanceMessages = {
+            expert: {
+                emoji: "🏆",
+                title: "EXPERT PERFORMANCE!",
+                message: "Outstanding, Keerthana! You're a quiz master! Your knowledge is exceptional and you've demonstrated excellent understanding of the subject.",
+                tips: []
+            },
+            excellent: {
+                emoji: "⭐",
+                title: "EXCELLENT WORK!",
+                message: "Great job, Keerthana! You're doing really well! You have a strong grasp of the material with just a few areas to refine.",
+                tips: [
+                    "Review the questions you missed to strengthen weak areas",
+                    "Try increasing difficulty level for more challenge",
+                    "Keep practicing to maintain your excellent performance"
+                ]
+            },
+            good: {
+                emoji: "👍",
+                title: "GOOD JOB!",
+                message: "Well done, Keerthana! You're on the right track! You have a solid foundation and with a bit more practice, you'll be at the top.",
+                tips: [
+                    "Focus on understanding concepts rather than memorizing",
+                    "Review incorrect answers and learn from mistakes",
+                    "Try practicing similar topics to build confidence",
+                    "Consider reducing timer pressure to improve accuracy"
+                ]
+            },
+            average: {
+                emoji: "📚",
+                title: "KEEP LEARNING!",
+                message: "Good effort, Keerthana! You're making progress! There's room for improvement, but you're building your knowledge steadily.",
+                tips: [
+                    "Spend more time studying the topic before taking quizzes",
+                    "Break down complex questions into smaller parts",
+                    "Practice regularly to build confidence and knowledge",
+                    "Try easier difficulty levels to build a strong foundation",
+                    "Don't rush - take your time to read questions carefully"
+                ]
+            },
+            needsImprovement: {
+                emoji: "💪",
+                title: "KEEP TRYING!",
+                message: "Don't give up, Keerthana! Learning is a journey! Every expert was once a beginner. Keep practicing and you'll see improvement.",
+                tips: [
+                    "Start with easier difficulty levels to build confidence",
+                    "Study the material thoroughly before attempting quizzes",
+                    "Review all answers after completing to learn from mistakes",
+                    "Take quizzes without timer pressure initially",
+                    "Focus on one category at a time to master it",
+                    "Practice makes perfect - keep taking quizzes regularly!"
+                ]
+            }
+        };
+
+        // App State
+        let currentScreen = 'category';
+        let selectedCategory = '';
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let score = 0;
+        let timerInterval = null;
+        let timeLeft = 0;
+        let quizStartTime = 0;
+        let settings = {
+            questionCount: 10,
+            difficulty: 'medium',
+            timer: 60,
+            quizMode: 'standard',
+            showAnswers: 'end',
+            soundEffects: 'on'
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            showScreen('category');
+        });
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Bottom Navigation
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const screen = e.currentTarget.dataset.screen;
+                    if (screen === 'quiz' && currentQuestions.length === 0) {
+                        return;
+                    }
+                    showScreen(screen);
+                });
+            });
+
+            // Category Selection
+            document.querySelectorAll('.category-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    selectedCategory = e.currentTarget.dataset.category;
+                    startQuiz();
+                });
+            });
+
+            // Quiz Controls
+            document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+            document.getElementById('prevBtn').addEventListener('click', prevQuestion);
+            document.getElementById('quitBtn').addEventListener('click', quitQuiz);
+
+            // Results Actions
+            document.getElementById('retryBtn').addEventListener('click', retryQuiz);
+            document.getElementById('newQuizBtn').addEventListener('click', () => showScreen('category'));
+
+            // Settings
+            document.getElementById('questionCount').addEventListener('change', (e) => {
+                settings.questionCount = parseInt(e.target.value);
+            });
+            document.getElementById('difficulty').addEventListener('change', (e) => {
+                settings.difficulty = e.target.value;
+            });
+            document.getElementById('timer').addEventListener('change', (e) => {
+                settings.timer = parseInt(e.target.value);
+            });
+            document.getElementById('quizMode').addEventListener('change', (e) => {
+                settings.quizMode = e.target.value;
+            });
+            document.getElementById('showAnswers').addEventListener('change', (e) => {
+                settings.showAnswers = e.target.value;
+            });
+            document.getElementById('soundEffects').addEventListener('change', (e) => {
+                settings.soundEffects = e.target.value;
+            });
+        }
+
+        // Show Screen
+        function showScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            const screenMap = {
+                'category': 'categoryScreen',
+                'quiz': 'quizScreen',
+                'results': 'resultsScreen',
+                'profile': 'profileScreen'
+            };
+            
+            const screenId = screenMap[screenName];
+            if (screenId) {
+                document.getElementById(screenId).classList.remove('hidden');
+                document.querySelector(`[data-screen="${screenName}"]`).classList.add('active');
+                currentScreen = screenName;
+            }
+        }
+
+        // Start Quiz
+        function startQuiz() {
+            const categoryQuestions = quizData[selectedCategory];
+            currentQuestions = shuffleArray([...categoryQuestions]).slice(0, settings.questionCount);
+            currentQuestionIndex = 0;
+            userAnswers = new Array(currentQuestions.length).fill(null);
+            score = 0;
+            quizStartTime = Date.now();
+            
+            document.getElementById('currentCategory').textContent = selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1);
+            document.getElementById('difficultyTag').textContent = settings.difficulty.charAt(0).toUpperCase() + settings.difficulty.slice(1);
+            document.getElementById('difficultyTag').className = `difficulty-tag ${settings.difficulty}`;
+            
+            showScreen('quiz');
+            loadQuestion();
+        }
+
+        // Load Question
+        function loadQuestion() {
+            const question = currentQuestions[currentQuestionIndex];
+            
+            document.getElementById('questionNumber').textContent = currentQuestionIndex + 1;
+            document.getElementById('questionText').textContent = question.q;
+            document.getElementById('progressDisplay').textContent = `${currentQuestionIndex + 1}/${currentQuestions.length}`;
+            document.getElementById('scoreDisplay').textContent = score;
+            
+            const progressPercent = ((currentQuestionIndex + 1) / currentQuestions.length) * 100;
+            document.getElementById('progressBar').style.width = progressPercent + '%';
+            
+            // Load options
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+            const letters = ['A', 'B', 'C', 'D'];
+            
+            question.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                if (userAnswers[currentQuestionIndex] === index) {
+                    btn.classList.add('selected');
+                }
+                btn.innerHTML = `
+                    <span class="option-letter">${letters[index]}</span>
+                    <span>${option}</span>
+                `;
+                btn.addEventListener('click', () => selectAnswer(index));
+                container.appendChild(btn);
+            });
+            
+            // Update buttons
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            document.getElementById('nextBtn').textContent = currentQuestionIndex === currentQuestions.length - 1 ? 'Finish' : 'Next';
+            
+            // Start timer
+            if (settings.timer > 0) {
+                startTimer();
+            } else {
+                document.getElementById('timerDisplay').textContent = 'No Timer';
+            }
+        }
+
+        // Start Timer
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = settings.timer;
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 10) {
+                    document.getElementById('timerDisplay').classList.add('timer-alert');
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    nextQuestion();
+                }
+            }, 1000);
+        }
+
+        // Update Timer Display
+        function updateTimerDisplay() {
+            document.getElementById('timerDisplay').textContent = timeLeft + 's';
+            if (timeLeft > 10) {
+                document.getElementById('timerDisplay').classList.remove('timer-alert');
+            }
+        }
+
+        // Select Answer
+        function selectAnswer(index) {
+            userAnswers[currentQuestionIndex] = index;
+            
+            // Update UI
+            document.querySelectorAll('.option-btn').forEach((btn, i) => {
+                btn.classList.remove('selected');
+                if (i === index) {
+                    btn.classList.add('selected');
+                }
+            });
+        }
+
+        // Next Question
+        function nextQuestion() {
+            clearInterval(timerInterval);
+            
+            // Check answer
+            if (userAnswers[currentQuestionIndex] !== null) {
+                const question = currentQuestions[currentQuestionIndex];
+                if (userAnswers[currentQuestionIndex] === question.correct) {
+                    score += 10;
+                }
+            }
+            
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        // Previous Question
+        function prevQuestion() {
+            clearInterval(timerInterval);
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+            }
+        }
+
+        // Get Performance Level
+        function getPerformanceLevel(percentage) {
+            if (percentage >= 90) return 'expert';
+            if (percentage >= 80) return 'excellent';
+            if (percentage >= 70) return 'good';
+            if (percentage >= 50) return 'average';
+            return 'needsImprovement';
+        }
+
+        // Finish Quiz
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            
+            const totalQuestions = currentQuestions.length;
+            const correctAnswers = currentQuestions.filter((q, i) => userAnswers[i] === q.correct).length;
+            const incorrectAnswers = totalQuestions - correctAnswers;
+            const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+            const timeTaken = Math.floor((Date.now() - quizStartTime) / 1000);
+            const minutes = Math.floor(timeTaken / 60);
+            const seconds = timeTaken % 60;
+            
+            // Get performance level
+            const performanceLevel = getPerformanceLevel(percentage);
+            const performance = performanceMessages[performanceLevel];
+            
+            // Update results message
+            const resultsMessageDiv = document.getElementById('resultsMessage');
+            resultsMessageDiv.innerHTML = `
+                <div class="emoji">${performance.emoji}</div>
+                <h2>${performance.title}</h2>
+                <p class="message">${performance.message}</p>
+                ${performance.tips.length > 0 ? `
+                    <div class="improvement-tips">
+                        <h4><i class="fas fa-lightbulb"></i> Tips for Improvement:</h4>
+                        <ul>
+                            ${performance.tips.map(tip => `<li>${tip}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+            `;
+            
+            // Update results
+            document.getElementById('finalScore').textContent = percentage + '%';
+            document.getElementById('correctCount').textContent = correctAnswers;
+            document.getElementById('incorrectCount').textContent = incorrectAnswers;
+            document.getElementById('timeTaken').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Rank
+            let rank = performanceLevel.charAt(0).toUpperCase() + performanceLevel.slice(1);
+            if (performanceLevel === 'needsImprovement') rank = 'Beginner';
+            document.getElementById('rankPosition').textContent = rank;
+            
+            showScreen('results');
+        }
+
+        // Quit Quiz
+        function quitQuiz() {
+            if (confirm('Are you sure you want to quit? Your progress will be lost.')) {
+                clearInterval(timerInterval);
+                currentQuestions = [];
+                userAnswers = [];
+                showScreen('category');
+            }
+        }
+
+        // Retry Quiz
+        function retryQuiz() {
+            startQuiz();
+        }
+
+        // Utility: Shuffle Array
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+    </script>
+</body>
+</html>
